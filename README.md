@@ -1,6 +1,7 @@
 # A-Simple-File-Synchronize-System
 
 ## File structure
+```
 - server
    |- server.py
    |- log
@@ -13,3 +14,4 @@
    |
    |- cloud
        |- data
+```
