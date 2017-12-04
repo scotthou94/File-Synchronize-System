@@ -3,13 +3,6 @@ import os
 import time
 
 
-def connect(ftp):
-	try:
-		ftp.connect('127.0.0.1', 2121)
-		ftp.login('test', 'test')
-	except:
-		return False
-	return True
 
 def upload(location, file):
 	try:
@@ -29,6 +22,8 @@ def check_update(last_sync, path, location, ftp):
 	files = os.listdir(location + path)
 	for file in files:
 		#print location+path+file
+		if file == '.DS_Store':
+			continue
 		if os.stat(location + path + file).st_mtime <= last_sync:
 			continue
 		if os.path.isfile(location + path + file) == True:
@@ -77,6 +72,7 @@ if __name__ == '__main__':
 	'''
 
 	while (True):
+		new_files = []
 		'''
 		if connect(ftp) == False:
 			print 'connection refused'
@@ -88,9 +84,12 @@ if __name__ == '__main__':
 		
 		#ftp.dir()
 		ftp.cwd('/')
+		print ''
+		print 'need update:'
 		for file in new_files:
 			print file
 			upload('./test/', file)
 		last_sync = time.time()
-		#ftp.quit()
-		break
+		ftp.quit()
+		#break
+		time.sleep(5)
