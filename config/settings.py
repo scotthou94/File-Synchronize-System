@@ -12,7 +12,7 @@ passive_ports = (2000, 2200)
 enable_anonymous = False 
 anonymous_path = './cloud/data'
 
-enable_logging = True
+enable_logging = False
 loging_name = './log/pyftp.log'
 
 welcome_msg = 'Welcome to NGN File Backup System'

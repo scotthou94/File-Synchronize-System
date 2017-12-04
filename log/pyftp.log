@@ -71,3 +71,34 @@ INFO:pyftpdlib:198.254.113.188:63654-[root] CWD /home/ubuntu 250
 INFO:pyftpdlib:198.254.113.188:63654-[root] FTP session closed (disconnect).
 INFO:pyftpdlib:received interrupt signal
 INFO:pyftpdlib:>>> shutting down FTP server (1 active socket fds) <<<
+INFO:pyftpdlib:>>> starting FTP server on 0.0.0.0:2121, pid=3355 <<<
+INFO:pyftpdlib:concurrency model: async
+INFO:pyftpdlib:masquerade (NAT) address: None
+INFO:pyftpdlib:passive ports: 2000->2199
+INFO:pyftpdlib:127.0.0.1:54007-[] FTP session opened (connect)
+INFO:pyftpdlib:127.0.0.1:54007-[root] USER 'root' logged in.
+INFO:pyftpdlib:127.0.0.1:54007-[root] RETR /Users/zyfei/Columbia/2017FA/NGN/project/server.py completed=1 bytes=1598 seconds=0.001
+INFO:pyftpdlib:127.0.0.1:54007-[root] STOR /Users/zyfei/Columbia/2017FA/NGN/project/t.txt completed=1 bytes=1598 seconds=0.001
+INFO:pyftpdlib:127.0.0.1:54007-[root] STOR /Users/zyfei/Columbia/2017FA/NGN/project/t.txt completed=1 bytes=1403 seconds=0.001
+INFO:pyftpdlib:127.0.0.1:54007-[root] STOR /Users/zyfei/Columbia/2017FA/NGN/project/t.txt completed=1 bytes=79 seconds=0.001
+INFO:pyftpdlib:127.0.0.1:54007-[root] STOR /Users/zyfei/Columbia/2017FA/NGN/project/cloud/t.txt completed=1 bytes=79 seconds=0.002
+INFO:pyftpdlib:127.0.0.1:54007-[root] STOR /Users/zyfei/Columbia/2017FA/NGN/project/cloud/tt.txt completed=1 bytes=1403 seconds=0.001
+INFO:pyftpdlib:received interrupt signal
+INFO:pyftpdlib:>>> shutting down FTP server (2 active socket fds) <<<
+INFO:pyftpdlib:127.0.0.1:54007-[root] FTP session closed (disconnect).
+INFO:pyftpdlib:>>> starting FTP server on 0.0.0.0:2121, pid=10273 <<<
+INFO:pyftpdlib:concurrency model: async
+INFO:pyftpdlib:masquerade (NAT) address: None
+INFO:pyftpdlib:passive ports: 2000->2199
+INFO:pyftpdlib:127.0.0.1:56699-[] FTP session opened (connect)
+INFO:pyftpdlib:127.0.0.1:56699-[root] USER 'root' logged in.
+INFO:pyftpdlib:127.0.0.1:56699-[root] Control connection timed out.
+INFO:pyftpdlib:127.0.0.1:56699-[root] FTP session closed (disconnect).
+INFO:pyftpdlib:received interrupt signal
+INFO:pyftpdlib:>>> shutting down FTP server (1 active socket fds) <<<
+INFO:pyftpdlib:>>> starting FTP server on 0.0.0.0:2121, pid=10375 <<<
+INFO:pyftpdlib:concurrency model: async
+INFO:pyftpdlib:masquerade (NAT) address: None
+INFO:pyftpdlib:passive ports: 2000->2199
+INFO:pyftpdlib:received interrupt signal
+INFO:pyftpdlib:>>> shutting down FTP server (1 active socket fds) <<<
