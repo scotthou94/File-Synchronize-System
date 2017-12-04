@@ -3,6 +3,13 @@ import os
 import time
 
 
+def connect(ftp):
+	try:
+		ftp.connect('127.0.0.1', 2121)
+		ftp.login('test', 'test')
+	except:
+		return False
+	return True
 
 def upload(location, file):
 	try:
@@ -21,7 +28,7 @@ def check_update(last_sync, path, location, ftp):
 	#print path
 	files = os.listdir(location + path)
 	for file in files:
-		print location+path+file
+		#print location+path+file
 		if os.stat(location + path + file).st_mtime <= last_sync:
 			continue
 		if os.path.isfile(location + path + file) == True:
