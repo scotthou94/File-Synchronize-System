@@ -17,6 +17,7 @@ def check_update(last_sync, path, location, ftp):
 	new_files = []
 	del_files = []
 	files = []
+	ret = []
 	dir = ''
 
 	#print path
@@ -45,19 +46,36 @@ def check_update(last_sync, path, location, ftp):
 				for new_file in local_files:
 					if new_file not in cloud_files:
 						new_files.append(path + file + '/' + new_file)
-				'''
-				for del_file in cloud_files:
-					if del_file not in local_files:
-						del_files.append(path + file + '/' + del_file)
-				'''
+				
 			dir = file + '/'
 			new_files.extend(check_update(last_sync, path + dir, location, ftp))
+			#print check_update(last_sync, path + dir, location, ftp)
 		else:
 			continue
 
-
-	#return [new_files, del_files]
 	return new_files
+
+def check_update_del(path, location, ftp):
+	del_files = []
+	files = []
+	dir = ''
+
+	ftp.cwd('/' + path)
+	cloud_files = ftp.nlst()
+	local_files = os.listdir(location + path)
+
+	for file in cloud_files:
+		#print path+'/'+file
+		#print location + path + '/' + file
+		if file not in local_files:
+			del_files.append(path + '/' +file)
+		
+		elif os.path.isdir(location + path + '/' + file) == True:
+			#print 'go to check %s' % path+file
+			del_files.extend(check_update_del(path+'/'+file, location, ftp))
+
+	return del_files
+
 
 
 if __name__ == '__main__':
@@ -120,22 +138,24 @@ if __name__ == '__main__':
 				if del_file not in local_files:
 					del_files.append(del_file)
 			'''
+			
 
 		new_files.extend(check_update(last_sync, '', './test/', ftp))
-		#del_files.extend(check_update(last_sync, '', './test/', ftp)[1])
+		del_files.extend(check_update_del('', './test/', ftp))
 
 		
-
-		print 'need update:'
-		if len(new_files) > 0:
+		if len(new_files) > 0 or len(del_files) > 0:
 			ftp.cwd('/')
+			print 'need update:'
 			for file in new_files:
 				upload('./test/', file)
-			'''
+			
 			for file in del_files:
 				print 'delete %s' % file
 				ftp.delete(file)
-			'''
+			
+		else:
+			print 'up to date'
 
 		last_sync = time.time()
 		ftp.quit()
