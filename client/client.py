@@ -13,7 +13,23 @@ def upload(location, file):
 	print 'upload %s' % file
 	return True
 
-def check_update(last_sync, path, location, ftp):
+def download_all(location, path=''):
+	rootdir = []
+	ftp.retrlines('MLSD '+path, rootdir.append)
+	for line in rootdir:
+		file = line.split(';')[5][1:]
+		if file == '.DS_Store':
+			continue
+		#print file
+		if line.split(';')[3] == 'type=file':
+			print 'download %s' % path+'/'+file
+			ftp.retrbinary('RETR '+path+'/'+file, open(location+path+'/'+file, 'wb').write)
+		else:
+			download_all(location, path+'/'+file)
+		
+
+
+def check_update(last_sync, path, location):
 	new_files = []
 	del_files = []
 	files = []
@@ -48,14 +64,14 @@ def check_update(last_sync, path, location, ftp):
 						new_files.append(path + file + '/' + new_file)
 				
 			dir = file + '/'
-			new_files.extend(check_update(last_sync, path + dir, location, ftp))
+			new_files.extend(check_update(last_sync, path + dir, location))
 			#print check_update(last_sync, path + dir, location, ftp)
 		else:
 			continue
 
 	return new_files
 
-def check_update_del(path, location, ftp):
+def check_update_del(path, location):
 	del_files = []
 	files = []
 	dir = ''
@@ -72,7 +88,7 @@ def check_update_del(path, location, ftp):
 		
 		elif os.path.isdir(location + path + '/' + file) == True:
 			#print 'go to check %s' % path+file
-			del_files.extend(check_update_del(path+'/'+file, location, ftp))
+			del_files.extend(check_update_del(path+'/'+file, location))
 
 	return del_files
 
@@ -112,7 +128,29 @@ if __name__ == '__main__':
 		ftp.mkd('/' + directory)
 	'''
 
+	ftp.connect('127.0.0.1', 2121)
+	ftp.login('test', 'test')
+	rootdir = ftp.nlst('/')
+	print rootdir
+	if len(rootdir) == 1 and rootdir[0] == '.DS_Store':
+		print 'No data in cloud'
+	elif len(rootdir) > 0:
+		print 'There is existing content in cloud'
+		print 'Do you want to overwrite cloud content? (y/n)'
+		while(True):
+			answer = raw_input('')
+			if answer == 'y' or answer == 'Y':
+				print 'overwriting...'
+				break
+			elif answer == 'n' or answer == 'N':
+				download_all('./test/')
+				break
+			else:
+				print 'Please enter y or n'
+	
+
 	while (True):
+		break
 		new_files = []
 		del_files = []
 		'''
@@ -140,8 +178,8 @@ if __name__ == '__main__':
 			'''
 			
 
-		new_files.extend(check_update(last_sync, '', './test/', ftp))
-		del_files.extend(check_update_del('', './test/', ftp))
+		new_files.extend(check_update(last_sync, '', './test/'))
+		del_files.extend(check_update_del('', './test/'))
 
 		
 		if len(new_files) > 0 or len(del_files) > 0:
