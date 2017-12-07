@@ -26,7 +26,27 @@ def download_all(location, path=''):
 			ftp.retrbinary('RETR '+path+'/'+file, open(location+path+'/'+file, 'wb').write)
 		else:
 			download_all(location, path+'/'+file)
-		
+
+
+#def upload_dir(location, dir):
+
+
+
+
+def rm_dir(dir):
+	try:
+		ftp.rmd(dir)
+	except:
+		files = []
+		ftp.retrlines('MLSD '+dir, files.append)
+		for line in files:
+			file = line.split(';')[5][1:]
+			if line.split(';')[3] == 'type=file':
+				ftp.delete(dir+'/'+file)
+			else:
+				rm_dir(dir+'/'+file)
+		ftp.rmd(dir)
+
 
 
 def check_update(last_sync, path, location):
@@ -61,7 +81,12 @@ def check_update(last_sync, path, location):
 				local_files = os.listdir(location + path + file)
 				for new_file in local_files:
 					if new_file not in cloud_files:
-						new_files.append(path + file + '/' + new_file)
+						print 'find'
+						if os.path.isfile(location + path + file + '/' + new_file) == True:
+							new_files.append(path + file + '/' + new_file)
+						else:
+							ftp.mkd('/' + path + file + '/' + new_file)
+							new_files.extend(check_update(last_sync, path + file + '/' + new_file+'/', location))
 				
 			dir = file + '/'
 			new_files.extend(check_update(last_sync, path + dir, location))
@@ -147,10 +172,10 @@ if __name__ == '__main__':
 				break
 			else:
 				print 'Please enter y or n'
+	ftp.quit()
 	
 
 	while (True):
-		break
 		new_files = []
 		del_files = []
 		'''
@@ -162,20 +187,20 @@ if __name__ == '__main__':
 		ftp.login('test', 'test')
 
 		print ''
-		print os.stat('./test').st_mtime
-		print last_sync
+		#print os.stat('./test').st_mtime
+		#print last_sync
 		if os.stat('./test').st_mtime > last_sync:
 			print 'check'
 			cloud_files = ftp.nlst('/')
 			local_files = os.listdir('./test/')
 			for new_file in local_files:
 				if new_file not in cloud_files:
-					new_files.append(new_file)
-			'''
-			for del_file in cloud_files:
-				if del_file not in local_files:
-					del_files.append(del_file)
-			'''
+					if os.path.isfile('./test/' + file + '/' + new_file) == True:
+						new_files.append(new_file)
+					else:
+						ftp.mkd('/' + new_file)
+						new_files.extend(check_update(last_sync, new_file+'/', './test/'))
+
 			
 
 		new_files.extend(check_update(last_sync, '', './test/'))
@@ -186,11 +211,17 @@ if __name__ == '__main__':
 			ftp.cwd('/')
 			print 'need update:'
 			for file in new_files:
-				upload('./test/', file)
+				if os.path.isfile('./test/' + file) == True:
+					upload('./test/', file)
+				#else:
+				#	upload_dir('./test/', file)
 			
 			for file in del_files:
 				print 'delete %s' % file
-				ftp.delete(file)
+				if os.path.isfile('./test/' + file) == True:
+					ftp.delete(file)
+				else:
+					rm_dir(file)
 			
 		else:
 			print 'up to date'
