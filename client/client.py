@@ -14,6 +14,7 @@ def upload(location, file):
 	return True
 
 def download_all(location, path=''):
+	print location+path
 	rootdir = []
 	ftp.retrlines('MLSD '+path, rootdir.append)
 	for line in rootdir:
@@ -25,12 +26,13 @@ def download_all(location, path=''):
 			print 'download %s' % path+'/'+file
 			ftp.retrbinary('RETR '+path+'/'+file, open(location+path+'/'+file, 'wb').write)
 		else:
+			if os.path.exists(location+path+'/'+file) == False:
+				os.mkdir(location+path+'/'+file)
+				print 'make local directory %s' % location+path+'/'+file
 			download_all(location, path+'/'+file)
 
 
 #def upload_dir(location, dir):
-
-
 
 
 def rm_dir(dir):
@@ -52,18 +54,30 @@ def rm_dir(dir):
 def check_update(last_sync, path, location):
 	new_files = []
 	del_files = []
+	cloud_files = []
 	files = []
 	ret = []
 	dir = ''
 
 	#print path
 	files = os.listdir(location + path)
+	cloud_files = ftp.nlst('/'+path)
+	
 	for file in files:
 		#print location+path+file
 		if file == '.DS_Store':
 			continue
 		if os.stat(location + path + file).st_mtime <= last_sync:
-			continue
+			if file in cloud_files:
+				continue
+			if os.path.isfile(location+path+file) == True:
+				new_files.append(path+file)
+			else:
+				print path
+				print cloud_files
+				print file
+				ftp.mkd('/' + path + file)
+				new_files.extend(check_update(last_sync, path+file+'/', location))
 		if os.path.isfile(location + path + file) == True:
 			#new_files.append(location + path + file)
 			new_files.append(path + file)
@@ -81,13 +95,12 @@ def check_update(last_sync, path, location):
 				local_files = os.listdir(location + path + file)
 				for new_file in local_files:
 					if new_file not in cloud_files:
-						print 'find'
+						#print 'find'
 						if os.path.isfile(location + path + file + '/' + new_file) == True:
 							new_files.append(path + file + '/' + new_file)
 						else:
 							ftp.mkd('/' + path + file + '/' + new_file)
 							new_files.extend(check_update(last_sync, path + file + '/' + new_file+'/', location))
-				
 			dir = file + '/'
 			new_files.extend(check_update(last_sync, path + dir, location))
 			#print check_update(last_sync, path + dir, location, ftp)
@@ -156,7 +169,7 @@ if __name__ == '__main__':
 	ftp.connect('127.0.0.1', 2121)
 	ftp.login('test', 'test')
 	rootdir = ftp.nlst('/')
-	print rootdir
+	#print rootdir
 	if len(rootdir) == 1 and rootdir[0] == '.DS_Store':
 		print 'No data in cloud'
 	elif len(rootdir) > 0:
@@ -168,7 +181,7 @@ if __name__ == '__main__':
 				print 'overwriting...'
 				break
 			elif answer == 'n' or answer == 'N':
-				download_all('./test/')
+				download_all('./test')
 				break
 			else:
 				print 'Please enter y or n'
@@ -190,7 +203,7 @@ if __name__ == '__main__':
 		#print os.stat('./test').st_mtime
 		#print last_sync
 		if os.stat('./test').st_mtime > last_sync:
-			print 'check'
+			#print 'check'
 			cloud_files = ftp.nlst('/')
 			local_files = os.listdir('./test/')
 			for new_file in local_files:
@@ -206,6 +219,7 @@ if __name__ == '__main__':
 		new_files.extend(check_update(last_sync, '', './test/'))
 		del_files.extend(check_update_del('', './test/'))
 
+		new_files = list(set(new_files))
 		
 		if len(new_files) > 0 or len(del_files) > 0:
 			ftp.cwd('/')
@@ -218,15 +232,23 @@ if __name__ == '__main__':
 			
 			for file in del_files:
 				print 'delete %s' % file
-				if os.path.isfile('./test/' + file) == True:
+				'''
+				if os.path.isfile(file) == True:
+					print file+' is a file'
 					ftp.delete(file)
 				else:
+					print file+' is a dir'
 					rm_dir(file)
+				'''
+				try:
+					rm_dir(file)
+				except:
+					ftp.delete(file)
 			
 		else:
-			print 'up to date'
+			print 'up to date [%f]' % time.time()
 
 		last_sync = time.time()
 		ftp.quit()
 		#break
-		time.sleep(5)
+		time.sleep(2)
