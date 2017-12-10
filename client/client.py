@@ -14,9 +14,12 @@ def upload(location, file):
 	return True
 
 def download_all(location, path=''):
+	print 'download_all:'
 	print location+path
 	rootdir = []
 	ftp.retrlines('MLSD '+path, rootdir.append)
+
+	print 'download_all: rootdir = ', rootdir
 	for line in rootdir:
 		file = line.split(';')[5][1:]
 		if file == '.DS_Store':
@@ -145,13 +148,13 @@ if __name__ == '__main__':
 	login = True
 
 	#initial login
-	'''
 	while (login):
 		user = raw_input('please enter username: ')
 		password = raw_input('please enter password: ')
 		try:
 			ftp.connect('127.0.0.1', 2121)
 			ftp.login(user, password)
+			ftp.set_pasv(False)
 			login = False
 		except:
 			print 'login refused!'
@@ -164,10 +167,13 @@ if __name__ == '__main__':
 	except:
 		print 'create directory in server'
 		ftp.mkd('/' + directory)
-	'''
 
+	'''
 	ftp.connect('127.0.0.1', 2121)
 	ftp.login('test', 'test')
+	ftp.set_pasv(False)
+	'''
+
 	rootdir = ftp.nlst('/')
 	#print rootdir
 	if len(rootdir) == 1 and rootdir[0] == '.DS_Store':
@@ -208,7 +214,7 @@ if __name__ == '__main__':
 			local_files = os.listdir('./test/')
 			for new_file in local_files:
 				if new_file not in cloud_files:
-					if os.path.isfile('./test/' + file + '/' + new_file) == True:
+					if os.path.isfile('./test/' + new_file) == True:
 						new_files.append(new_file)
 					else:
 						ftp.mkd('/' + new_file)
